@@ -1,6 +1,8 @@
 # FlockingBoids
 
-A cozy project I made in 2015 (I think) in a state of perpeutal panic for the course "Theoretical Modelling in Biology (B-KUL-G0G41A)" at KU Leuven. The code and documentation is preserved here in all its frantic glory (for the purpose of maximizing nostalgia).
+A cozy project I made in 2015/2016 (I think) in a state of perpeutal panic for the course "Theoretical Modelling in Biology (B-KUL-G0G41A)" at KU Leuven. The code and documentation is reserved here in all its frantic glory entirely out of nostalgia.
+
+I should probably mention here that my Python code has gotten better since I finished this :x
 
 ## What's it do?
 
@@ -12,5 +14,5 @@ There's a GUI, implemented through pygame, where the user can watch them die and
 
 ## Dependencies
 
-* Python (probably 3-something)
-* pygame
+* Python 2. I _think._
+* Some version of pygame.
