@@ -1,0 +1,196 @@
+# B O I D  C H A N G E L O G
+
+## VERSION 0.6.4 - 2015-01-18
+
+* Genotype output now prints properly
+* BoidMetrics prints a metadata file with the settings used during
+  a simulation
+* Output now prints instantly to the file, rather than being buffered
+
+## VERSION 0.6.3 - 2015-01-16
+
+* Simulation can now be limited to a max nbr of generations
+* Evasion now has an antiweight
+
+## VERSION 0.6.2
+
+* Boids now have unique ids, accessed through the Boid.ID parameter
+
+## VERSION 0.6.1
+
+* Reintroduced float genes
+* Weights are now properly set to zero if a suppressor weight
+  brings them below zero
+
+## VERSION 0.6
+
+* Added more neutral genes
+* Added three similar random walks
+* Added three flocking suppressor genes:
+
+	Example, cohesion vector:
+
+	Old version:	finalCohesionVector = calculatedCohesionVector * cohesionWeight
+	New version:	finalCohesionVector = calculatedCohesionVector * (cohesionWeight - antiCohesionWeight)
+
+  The program adjusts so that the final value of the weight cannot drop below zero, 
+  and thus there will be no repulsion
+
+* Implemented the printing of order (the magnitude of the average orientation vector
+  calculated from all alive boids)
+
+* Implemented custom filenames, controlled by the setting simulationID in run.py
+* Increased length of color genes to match the rest of the sequences
+* Implemented behavior where boids can evolve to gather in the center of the habitat
+
+## VERSION 0.5 - 2015-12-29
+
+* Boid genomes are now encoded as binary strings instead of float numbers. The weights 
+  are encoded as a 11 bit binary string (0-1023) which is translated to a two decimal 
+  float number to form the weight. E.g. a boid with the Cohesion Weight genes:
+
+   0000000000
+   0000010010
+
+  would have a CohW binary value of 18, which translates to a Cohesion weight of 0.18
+  The three RGB values that encode the boid color are now encoded as 8 bit binary strings, 
+  since RGB values are 8 bit values anyway.
+
+* Recombination now works by iterating over each binary position in a gene sequence
+  and applying the recombination probability to make a cut at that position, whereas 
+  before it worked by swapping out entire genes between chromosomes. This requires a 
+  lower recombination frequency, as more "trials" now occur per gene. The crossover can 
+  also be triggered multiple times per gene/sequence.
+
+  A simple demo of the recombination mechanism can be found in misc/recombination_test.py
+
+* Mutations now work by switching the bits on the binary string (0 -> 1 or 1 -> 0) much
+  like a base-substitution. The mutations are controlled by a mutation frequency and
+  can occur per base in a sequence. Similarily to the new recombination mechanism, a 
+  lower mutation frequency is recommended, compared to the ones used in the previous versions.
+
+* The graphic display can now show the predator neighbor radius, together with the boid
+  perception and neigbor radius. This can be toggled in the graphics settings or -- if the
+  simulation was not started in headless mode -- by pressing the 'R' key on the keyboard.
+
+* The graphic display can now draw both boid and predator velocity vectors, which are toggled 
+  similarily to the radiuses described above, by pressing the 'V' key on the keyboard.
+
+* The printout in the terminal during simulation has been cleaned up. Now also shows the current
+  generation's mean weights and color values.
+
+* run.py, the settings in readme, ecosystem.py and behavior.py are more or less fully documented
+  now.
+
+* Fixed the colission timeout timer not really doing anything.
+
+## VERSION 0.4 - 2015-12-29
+
+* Headless mode now works. A simulation can be started in permanent headless mode.
+* If a simulation is started in graphical mode, it can be toggled to 
+  to headless and back by pressing the H key. Unclear if it runs any faster though.
+* Added the option to switch on lines indicating boid velocity. 
+* Tweaked Predator steering
+* Predators should now avoid collissions with other predators. Haven't had the chance
+  to see if it works though.
+* Created setup.py for all functions that alter the settings.
+* Migrated all setup functions from ecosystem.py and run.py to setup.py module
+* All simulation parameters are not defined within a dictionary called
+  settings. This is in preparation for allowing the user to create multiple
+  files with settings.
+* Migrated BoidGenetics to genetics.py
+* Migrated all the stuff to do with graphics to graphics.py module
+* Genotype stats are now printed to a file alongside the phenotype stats
+* Started work on new allele (Gene) class that will store binary sequence and allow 
+  the program to keep track of and identify unique genes.
+* Started work on converting float genes to binary genes
+* Boid collission penalty is now controlled by minBoidvelocity in Settings.
+* Deadly collissions are now toggleable
+* Rest of quadrant code removed
+
+## VERSION 0.3.2 - 2015-12-28
+
+* Fix: Mutations actually change the gametes now.
+
+## VERSION 0.3.1 - 2012-12-27
+
+* Addition: Added better data printing
+
+## VERSION 0.3 - 2015-12-27
+
+* Started work on BoidConfig class, to store all the functions used
+  for setting the parameters for the simulation.
+   - Right now they all litter BoidEcosystem, decreasing the overall
+     readability of the code.
+* Optimized the moveBoids() function by removing a lot of unneccessary
+  iteration.
+   - The function now iterates over all boids once per boid being moved
+     instead of once for each rule. The simulation runs *much* faster now!
+* Found a bug in connection to the previous change, where the cohesion 
+  rule would only be applied to boids within the minimum distance radius
+  to the affected boid, instead of the wider neighbor distance.
+* Added three more loci to the boid genome controlling the R,G,B value of
+  boid.color
+* Predators now start with an initial velocity
+* Boids spawn in the center of the habitat
+* Boids no longer spawn on top of each other
+* Boids can start out with zeroed out genes by setting the varRange
+  parameter in run.py to a low value
+* Boids die off if they collide too much, in addition to being slowed down
+  after collission.
+   - One thing to note here is that collission kills don't count against
+     the kill limit that restarts the simulation. Meaning that in theory
+     all of them could die from colliding too much, freezing the simulation.
+   - Will be fixed later.
+
+* Predators now move smoother due to steering.
+* Added documentation to BoidEcosystem in ecosystem.py
+* Added some documentation to BoidBehavior in behavior.py
+* Added tags like [KILL] or [COLLISSION] to debug output
+* Added documentation to critters.py
+
+## VERSION 0.2.1 - 2015-12-26
+* Tried to implement quadrants
+* Implementation of quadrants was a disaster, rolling back to version O.2
+
+## VERSION 0.2 - 2015-12-26
+
+* Added steering (basically the same as the boids in the processing example)
+* Simplified the crossover function to one-point crossover:
+   - Crossover now occurs AFTER gametes have been selected and passed down
+     to the new boid. Same goes for mutations.
+   - The previous crossover function performed crossover on ALL the gametes
+     from a parent boid and then randomly selected a gamete for passing down.
+
+* Added support for independent segregation of the flocking genes:
+   - Can be toggled back to the previous state in the settings, 
+   - In the previous state all genes were linked on one chromosome and inherited 
+     together, unless crossover occured.
+
+* Wrote up a skeleton of proper documentation in the README.md file
+* Moved changelog to separate file
+* Renamed boidecology.py -> ecosystem.py
+* Renamed class BoidEcology -> BoidEcosystem
+* Renamed class Vector -> Vector2D
+   - Shortened Vector2D class function names, e.g. addVector(v) -> addVec(v)
+* Boids become dazed after they collide with each other and get penalized by 
+  getting slowed down
+   - Slowdown time and slowdown factor can both be controlled from run.py
+* Added headless mode. Can be switched on from the main program.
+* Turned BoidEcosystem methods into static methods and BoidEcosys variables into
+  shared class variables
+* Cleaned up more of the code
+
+
+## VERSION 0.1 - 2015-12-24
+
+* The predator boids are working. They are spawned together with other boids and 
+  activated after some time.
+* Predator hunting works, they will target and hunt closest prey
+* Prey kills work, prey that get within a predators kill radius will be hunted down, 
+  this can only happen to one boid at a time (at least i hope it works that way)
+* Basic genetic algorithm works: implemented simple float number mutations, a diploid 
+  crossover system
+* Foundations are set for a quadrant system. I managed to implement one earlier, 
+  but it was not really efficient, so I'm going to give it a 2nd try later
+
