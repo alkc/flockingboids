@@ -1,8 +1,10 @@
 # FlockingBoids
 
-A cozy project I made in 2015/2016 (I think) in a state of perpeutal panic for the course "Theoretical Modelling in Biology (B-KUL-G0G41A)" at KU Leuven. The code and documentation is reserved here in all its frantic glory entirely out of nostalgia.
+A silly project I made in 2015/2016 (I think) in a state of perpeutal panic for the course "Theoretical Modelling in Biology (B-KUL-G0G41A)" at KU Leuven. The code and documentation is preserved here in all its frantic glory (entirely out of nostalgia).
 
-I should probably mention here that my Python code has gotten better since I finished this :x
+For the purpose of actual science (studying the evolution of flocking) it's not a very good or realistic simulation. But it sure as hell was fun to code up in two-and-a-half months. Up to that point my Python code was mostly crappy bioinformatics scripts and simple crappy web apps -- this, on the other hand, was my first real crappy Python program.
+
+I should probably mention here that the quality of my Python code has improved since I finished this back in early 2016 :x
 
 ## What's it do?
 
