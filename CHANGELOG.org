@@ -1,4 +1,12 @@
-#+TITLE: Boid Changelog
+#+TITLE: Boids Genetic Algo Changelog
+
+* Unreleased / How will you think about the past in the future?
+
+** Added
+
+** Changed
+
+** Fixed
 
 * VERSION 0.6.4 - 2015-01-18
 
