@@ -16,5 +16,27 @@ There's a GUI, implemented through pygame, where the user can watch them die and
 
 ## Dependencies
 
-* Python 2. I _think._
-* Some version of pygame.
+* Python 3.11
+* pygame 2.6.1
+
+Create an environment with micromamba:
+
+```sh
+micromamba create -n flockingboids -c conda-forge python=3.11 pygame
+```
+
+Run the simulation from this directory:
+
+```sh
+micromamba run -n flockingboids python run.py
+```
+
+Press `H` to toggle headless mode, `R` to show detection radii, or `V` to show velocity vectors. Close the window to stop. The simulation writes metrics files to the current directory.
+
+For a finite run without a window, use:
+
+```sh
+micromamba run -n flockingboids python run.py --headless --max-generations 2
+```
+
+`--max-steps N` stops after N simulation steps, which is useful for quick checks.
