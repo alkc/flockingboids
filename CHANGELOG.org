@@ -4,9 +4,20 @@
 
 ** Added
 
+- CLI options for headless runs and limits on simulation steps or generation advances.
+
 ** Changed
 
+- Ported the simulation and field-of-view demo to Python 3
+- Converted the changelog, README, and TODO list to Org format and moved the original README.txt to docs/.
+- Documented micromamba setup and how to run the simulation.
+
 ** Fixed
+
+- Apply the configured minimum neighbor distance to boid separation.
+- Select the closest prey without comparing a distance to an unset value.
+- Stop finite runs at the requested generation count, and initialize display settings for headless runs.
+- Exit successfully after a normal simulation shutdown.
 
 * VERSION 0.6.4 - 2015-01-18
 
