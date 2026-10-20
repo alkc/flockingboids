@@ -41,6 +41,8 @@ micromamba run -n flockingboids python run.py --headless --max-generations 2
 
 =--max-steps N= stops after N simulation steps, which is useful for quick checks.
 
+Starting colors are randomized per boid and inherited by later generations. The =maxInitialColorGeneValues= setting in =run.py= controls their starting range independently of =maxInitialGeneValues=, which remains at zero for flocking behavior. The phenotype metrics record red, green, and blue gene values; the displayed RGB channels are those values multiplied by 50 and limited to 255.
+
 * Tests
 
 Run the survival tests with:

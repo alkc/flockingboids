@@ -4,6 +4,7 @@
 
 ** Added
 
+- Random starting color genes, independent of the initial flocking gene values.
 - CLI options for headless runs and limits on simulation steps or generation advances.
 - Focused tests for collisions, predation, and extinction.
 
@@ -15,6 +16,7 @@
 
 ** Fixed
 
+- Preserve fractional color gene values when converting them to RGB channels.
 - Count collisions equally for both boids in each pair and tally each death once.
 - Limit each hungry predator to one prey per step and stop cleanly when too few boids remain to breed.
 - Apply the configured minimum neighbor distance to boid separation.
