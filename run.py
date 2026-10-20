@@ -97,6 +97,23 @@ settings = {
     'printOrderPerNthTick': 50
 }
 
+parser = argparse.ArgumentParser(description="Run the flocking boids simulation")
+parser.add_argument("--headless", action="store_true", help="run without a pygame window")
+parser.add_argument("--max-steps", type=int, help="stop after this many simulation steps")
+parser.add_argument("--max-generations", type=int, help="stop after this many generation advances")
+args = parser.parse_args()
+
+if args.max_steps is not None and args.max_steps < 1:
+    parser.error("--max-steps must be at least 1")
+if args.max_generations is not None and args.max_generations < 1:
+    parser.error("--max-generations must be at least 1")
+
+if args.headless:
+    settings['headless'] = True
+if args.max_generations is not None:
+    settings['endlessSimulation'] = False
+    settings['maxGenerationNbr'] = args.max_generations
+
 '''
 SETUP BLOCK
 '''
@@ -110,12 +127,14 @@ if settings['headless'] is False:
     dimensions = (settings['habitatWidth'], settings['habitatHeight'])
     display = pygame.display.set_mode(dimensions)
     pygame.display.set_caption(windowTitle)
-    settings['display'] = display
+
+settings['display'] = display
 
 BoidSettings.setup(settings)
 BoidEcosystem.createEcosystem()
 
 runSimulation = True
+steps = 0
 bgColor = settings['bgColor']
 
 '''
@@ -154,6 +173,10 @@ while runSimulation:
 
     # Advance the simulation one step
     BoidEcosystem.step()
+    steps += 1
+
+    if args.max_steps is not None and steps >= args.max_steps:
+        runSimulation = False
 
     if BoidSettings.headless is False:
         # Render everything anew:
