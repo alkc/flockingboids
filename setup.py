@@ -73,7 +73,7 @@ class BoidSettings:
         BoidBehavior.minVelocity = BoidSettings.settings['minBoidVelocity']
         BoidBehavior.maxForce = BoidSettings.settings['maxBoidForce']
         BoidBehavior.perceptionRadius = BoidSettings.settings['perceptionRadius']
-        BoidBehavior.neighborDistance = BoidSettings.settings['minNeighborDist']
+        BoidBehavior.minDist = BoidSettings.settings['minNeighborDist']
         BoidBehavior.maxSlowdownTime = BoidSettings.settings['slowDownTimer']
         BoidBehavior.fov = BoidSettings.settings['fov']
 
@@ -144,6 +144,6 @@ class BoidSettings:
     def endSimulation():
         
         isFinite = not BoidSettings.settings['endlessSimulation']
-        maxGenReached = BoidSettings.settings['maxGenerationNbr'] < BoidEcosystem.currentGeneration
+        maxGenReached = BoidEcosystem.currentGeneration >= BoidSettings.settings['maxGenerationNbr']
         
         return isFinite and maxGenReached
