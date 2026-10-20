@@ -45,7 +45,7 @@ settings = {
     'minNeighborDist': 10.0,
     'maxBoidForce': 0.30,
     'perceptionRadius': 30.0,
-    'fov': 270.0,  # Degrees, not implemented
+    'fov': 270.0,  # Degrees; 360 gives all-around vision
 
     # Predator parameters
     # Movement
@@ -53,6 +53,8 @@ settings = {
     'maxPredatorVelocity': 2.05,
     'minPredatorVelocity': 0.50,
     'maxPredatorForce': 0.30,
+    'predatorPerceptionRadius': 180.0,
+    'predatorFov': 180.0,
     # Rest after successful hunt
     'restAfterKill': True,
     'killRadius': 4.0,
@@ -83,6 +85,7 @@ settings = {
     'drawBoidMinimumDistance': False,  # Toggle with R key
     'drawBoidPerceptionRadius': False,
     'drawPredatorMinimumDistance': False,
+    'drawPredatorPerceptionRadius': False,
 
     # Pygame settings
     'bgColor': (125, 125, 125),
