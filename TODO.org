@@ -1,0 +1,33 @@
+#+TITLE: To-do
+
+* High priority
+
+** TODO Fix up quadrants
+** TODO Implement spawnRadius in settings
+** TODO Implement killList (log of all dead boids)
+
+Example: tick  genome  death-cause
+
+** TODO Implement proper IDs for genes
+
+* Medium priority
+
+** TODO Implement a switch to end the simulation should all boids die or be reduced to a single boid
+
+Unlikely, but it might happen.
+
+** TODO Document BoidGenetics
+** TODO Document BoidBehavior
+** TODO Document PredatorBehavior
+** TODO Document printers.py
+
+* Whatever
+
+** TODO Look into combining boid and predator behavior
+** TODO Convert Boid and PredatorBoid to DoveBoid and HawkBoid respectively
+
+Rewrite both to be extensions of a parent Boid class:
+
+- Current predator and boid class share a few functions in common
+  and omitting their behavior they are quite similar in form and
+  function.
