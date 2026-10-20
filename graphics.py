@@ -122,7 +122,7 @@ class BoidGraphics:
                 except Exception as e:
                     print("[ERROR] Could not draw predator minimum distance at position {}:".format(renderPos), e)
         try:
-            size = (11, 7, 6) if isinstance(boid, PredatorBoid) else (8, 5, 4)
+            size = (9, 6, 5) if isinstance(boid, PredatorBoid) else (7, 4, 3)
             pygame.draw.polygon(
                 BoidGraphics.display,
                 boid.color,
