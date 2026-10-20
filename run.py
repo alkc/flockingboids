@@ -1,5 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
+import argparse
 import pygame
 from ecosystem import BoidEcosystem
 from setup import BoidSettings
@@ -165,4 +166,4 @@ while runSimulation:
 pygame.quit()
 
 # Exit the program
-exit('[EXIT] Bye.')
+print('[EXIT] Bye.')

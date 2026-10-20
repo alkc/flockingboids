@@ -31,7 +31,7 @@ class Boid:
 
         self.phenotypes = {}
 
-        for key, val in self.chromosome_1.genes.iteritems():
+        for key, val in self.chromosome_1.genes.items():
 
             self.phenotypes[key] = (
                 self.chromosome_1.getExpressedWeight(key) +
@@ -61,7 +61,7 @@ class Boid:
 
         stats = ""
 
-        for key, val in self.phenotypes.iteritems():
+        for key, val in self.phenotypes.items():
             stats += "{}: {:.2f} ".format(key, val)
 
         stats = stats.rstrip()
@@ -89,7 +89,7 @@ class Boid:
         try:
             return self.phenotypes[phenotype]
         except Exception:
-            print "Phenotype for gene {} cannot be found in list of phenotypic values.".format(phenotype)
+            print("Phenotype for gene {} cannot be found in list of phenotypic values.".format(phenotype))
             exit()
 
     def getPhenotypes(self):

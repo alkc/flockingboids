@@ -46,7 +46,7 @@ class BoidGraphics:
                         renderPos, BoidGraphics.boidPerceptionRadius,
                         1)
                 except Exception as e:
-                    print "[ERROR] Could not draw perception radius at pos {}:".format(renderPos), e
+                    print("[ERROR] Could not draw perception radius at pos {}:".format(renderPos), e)
             if BoidGraphics.drawBoidMinDistance:
                 try:
                     pygame.draw.circle(BoidGraphics.display,
@@ -54,7 +54,7 @@ class BoidGraphics:
                                        renderPos,
                                        BoidGraphics.boidMinDistance, 1)
                 except Exception as e:
-                    print "[ERROR] Could not draw minimum distance radius at pos {}:".format(renderPos) , e
+                    print("[ERROR] Could not draw minimum distance radius at pos {}:".format(renderPos), e)
 
         if isinstance(boid, PredatorBoid):
 
@@ -66,13 +66,13 @@ class BoidGraphics:
                         BoidGraphics.predatorMinDistanceColor,
                         renderPos, BoidGraphics.predatorMinDistance, 1)
                 except Exception as e:
-                    print "[ERROR] Could not draw predator minimum distance at position {}:".format(renderPos),  e
+                    print("[ERROR] Could not draw predator minimum distance at position {}:".format(renderPos), e)
         try:
             pygame.draw.circle(
                 BoidGraphics.display,
                 boid.color, renderPos, 2, 0)
         except Exception as e:
-            print "[ERROR] Could not draw boid at pos {}:".format(renderPos), e
+            print("[ERROR] Could not draw boid at pos {}:".format(renderPos), e)
 
         if BoidGraphics.drawVelocityVector is True:
                 renderLine = boid.position.addVec(
@@ -83,4 +83,4 @@ class BoidGraphics:
                         (255, 255, 255),
                         renderPos, renderLine, 1)
                 except Exception as e:
-                    print "[ERROR] Could not draw speed vector at pos {}:".format(renderPos), e
+                    print("[ERROR] Could not draw speed vector at pos {}:".format(renderPos), e)

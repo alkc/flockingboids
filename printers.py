@@ -37,7 +37,7 @@ class BoidGazer:
     @staticmethod
     def log(line, indent=0):
 
-        print "   " * indent + line
+        print("   " * indent + line)
 
     @staticmethod
     def logMeans(boids, indent):
@@ -118,7 +118,7 @@ class BoidMetrics:
     @staticmethod
     def printSettings(settings):
 
-        for key, val in settings.iteritems():
+        for key, val in settings.items():
             BoidMetrics.settingsOutput.write(
                 "{}\t{}\n".format(key, val)
             )
