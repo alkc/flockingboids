@@ -66,7 +66,7 @@ class SimpleBoid:
         x = random.randint(-2, 2)
         y = random.randint(-2, 2)
 
-        print x, y
+        print(x, y)
         
         return Vec(x,y)
    
