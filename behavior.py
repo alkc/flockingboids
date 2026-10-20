@@ -315,7 +315,7 @@ class PredatorBehavior:
 
             distance = predator.position.distanceTo(boid.position)
 
-            if distance < closestBoidDistance or closestBoidDistance is None:
+            if closestBoidDistance is None or distance < closestBoidDistance:
 
                 closestBoidDistance = distance
                 closestBoid = boid
