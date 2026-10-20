@@ -4,6 +4,7 @@
 
 ** Added
 
+- Directional vision for boids and predators, with configurable sight ranges and cone outlines.
 - Random starting color genes, independent of the initial flocking gene values.
 - CLI options for headless runs and limits on simulation steps or generation advances.
 - Focused tests for collisions, predation, and extinction.
