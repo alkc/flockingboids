@@ -1,9 +1,27 @@
 #!/usr/bin/python
 
+from math import cos, radians, sqrt
+
 from vector import Vector2D as Vec
 
 from graphics import BoidGraphics
 from printers import BoidMetrics as bStats
+
+
+def canSee(observer, target, radius, fov):
+    """Whether a target lies within an observer's range and forward view."""
+    dx = target.position.x - observer.position.x
+    dy = target.position.y - observer.position.y
+    distanceSquared = dx * dx + dy * dy
+    if distanceSquared > radius * radius:
+        return False
+
+    speedSquared = observer.velocity.x ** 2 + observer.velocity.y ** 2
+    if distanceSquared == 0 or speedSquared == 0 or fov >= 360:
+        return True
+
+    dot = observer.velocity.x * dx + observer.velocity.y * dy
+    return dot >= cos(radians(fov / 2)) * sqrt(speedSquared * distanceSquared)
 
 '''
 BoidBehavior defines the... well, behavior patterns of boids.
@@ -81,7 +99,9 @@ class BoidBehavior:
                 distance = distance.getMag()
 
                 # Check if otherBoid within perception range
-                if distance > 0 and distance < BoidBehavior.perceptionRadius:
+                if distance > 0 and canSee(
+                        boid, otherBoid,
+                        BoidBehavior.perceptionRadius, BoidBehavior.fov):
 
                     # If yes, add the position of the boid to the
                     # cohesion vector 
@@ -141,7 +161,9 @@ class BoidBehavior:
                 distance = boid.position.subVec(predator.position).getMag()
 
                 # If predator is within view:
-                if distance < BoidBehavior.perceptionRadius:
+                if distance > 0 and canSee(
+                        boid, predator,
+                        BoidBehavior.perceptionRadius, BoidBehavior.fov):
 
                     # Create vector pointing the hell away from
                     # the predator.
@@ -273,6 +295,7 @@ class PredatorBehavior:
     maxForce = 0.3
     killRadius = None
     perceptionRadius = None
+    fov = None
     maxSlowdownTime = None
 
     color = (255, 0, 0)
@@ -312,6 +335,11 @@ class PredatorBehavior:
         preyVec = Vec()
 
         for boid in boids:
+
+            if not canSee(predator, boid,
+                          PredatorBehavior.perceptionRadius,
+                          PredatorBehavior.fov):
+                continue
 
             distance = predator.position.distanceTo(boid.position)
 

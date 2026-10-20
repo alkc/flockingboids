@@ -33,6 +33,8 @@ micromamba run -n flockingboids python run.py
 
 Press =H= to toggle headless mode, =R= to show detection radii, or =V= to show velocity vectors. Close the window to stop. The simulation writes metrics files to the current directory.
 
+Boids sense flockmates and predators only within their forward vision cone. Predators likewise pursue prey only within their own vision cone. Adjust =fov= and =perceptionRadius= for boids, or =predatorFov= and =predatorPerceptionRadius= for predators, in =run.py=. Set a field of view to 360 degrees for all-around vision. Press =R= to show the cone outlines along with the minimum-distance circles.
+
 For a finite run without a window, use:
 
 #+begin_src sh
