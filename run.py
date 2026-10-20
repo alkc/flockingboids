@@ -142,6 +142,9 @@ DRAW BLOCK
 '''
 
 while runSimulation:
+    if len(BoidEcosystem.boids) < 2:
+        print('[EXTINCTION] Fewer than two boids remain; breeding cannot continue.')
+        break
 
     if BoidSettings.headless is False or pygame.display.get_init() > 0:
         for event in pygame.event.get():
@@ -165,7 +168,9 @@ while runSimulation:
             runSimulation = False
             continue
 
-        BoidEcosystem.advanceGeneration()
+        if not BoidEcosystem.advanceGeneration():
+            print('[EXTINCTION] Fewer than two boids remain; breeding cannot continue.')
+            break
 
     if BoidSettings.headless is False:
         # Wipe the display clean
@@ -174,6 +179,10 @@ while runSimulation:
     # Advance the simulation one step
     BoidEcosystem.step()
     steps += 1
+
+    if len(BoidEcosystem.boids) < 2:
+        print('[EXTINCTION] Fewer than two boids remain; breeding cannot continue.')
+        break
 
     if args.max_steps is not None and steps >= args.max_steps:
         runSimulation = False
