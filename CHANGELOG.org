@@ -4,6 +4,7 @@
 
 ** Added
 
+- Per-boid fate and parent records plus per-generation survival summaries.
 - Directional vision for boids and predators, with configurable sight ranges and cone outlines.
 - Random starting color genes, independent of the initial flocking gene values.
 - CLI options for headless runs and limits on simulation steps or generation advances.
@@ -11,6 +12,7 @@
 
 ** Changed
 
+- Write new run outputs as TSV files and record only actual settings in versioned metadata.
 - Draw prey and predators as triangles pointing in their direction of travel.
 - Ported the simulation and field-of-view demo to Python 3
 - Converted the changelog, README, and TODO list to Org format and moved the original README.txt to docs/.

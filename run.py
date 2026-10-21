@@ -3,6 +3,7 @@
 import argparse
 import pygame
 from ecosystem import BoidEcosystem
+from printers import BoidMetrics
 from setup import BoidSettings
 
 '''
@@ -23,7 +24,6 @@ classes used by the simulation.
 
 settings = {
     'simulationID': "AlexSim03",
-    'description': "mutRate = 0.0005, 10 kills before reset, deadly collisions, no predators",
     'endlessSimulation': True,
     'maxGenerationNbr': 1000,
     'nbrOfKillsBeforeReset': 10,
@@ -140,66 +140,74 @@ BoidEcosystem.createEcosystem()
 runSimulation = True
 steps = 0
 bgColor = settings['bgColor']
+exitStatus = 'stopped'
 
 '''
 DRAW BLOCK
 '''
 
-while runSimulation:
-    if len(BoidEcosystem.boids) < 2:
-        print('[EXTINCTION] Fewer than two boids remain; breeding cannot continue.')
-        break
-
-    if BoidSettings.headless is False or pygame.display.get_init() > 0:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                # Exit this loop
-                runSimulation = False
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_h:
-                # On keypress H:
-                BoidSettings.toggleHeadlessMode()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-                # On keypress R:
-                BoidSettings.toggleRadiusDraw()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_v:
-                # On keypress V:
-                BoidSettings.toggleVelocityVector()
-
-    # If kill-threshold is reached, advance to next gen
-    if BoidEcosystem.totalNbrOfKills >= BoidEcosystem.nbrOfKillsBeforeReset:
-
-        if BoidSettings.endSimulation():
-            runSimulation = False
-            continue
-
-        if not BoidEcosystem.advanceGeneration():
+try:
+    while runSimulation:
+        if len(BoidEcosystem.boids) < 2:
+            exitStatus = 'extinct'
             print('[EXTINCTION] Fewer than two boids remain; breeding cannot continue.')
             break
 
-    if BoidSettings.headless is False:
-        # Wipe the display clean
-        display.fill(bgColor)
+        if BoidSettings.headless is False or pygame.display.get_init() > 0:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    if (BoidEcosystem.totalNbrOfKills >=
+                            BoidEcosystem.nbrOfKillsBeforeReset):
+                        exitStatus = 'complete'
+                    runSimulation = False
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_h:
+                    BoidSettings.toggleHeadlessMode()
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                    BoidSettings.toggleRadiusDraw()
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_v:
+                    BoidSettings.toggleVelocityVector()
 
-    # Advance the simulation one step
-    BoidEcosystem.step()
-    steps += 1
+        if not runSimulation:
+            break
 
-    if len(BoidEcosystem.boids) < 2:
-        print('[EXTINCTION] Fewer than two boids remain; breeding cannot continue.')
-        break
+        # If kill-threshold is reached, advance to next gen
+        if BoidEcosystem.totalNbrOfKills >= BoidEcosystem.nbrOfKillsBeforeReset:
+            if BoidSettings.endSimulation():
+                exitStatus = 'complete'
+                break
+            if not BoidEcosystem.advanceGeneration():
+                exitStatus = 'extinct'
+                print('[EXTINCTION] Fewer than two boids remain; breeding cannot continue.')
+                break
 
-    if args.max_steps is not None and steps >= args.max_steps:
-        runSimulation = False
+        if BoidSettings.headless is False:
+            display.fill(bgColor)
 
-    if BoidSettings.headless is False:
-        # Render everything anew:
-        pygame.display.update()
+        BoidEcosystem.step()
+        steps += 1
 
-        # Comment this out to remove the fps limit:
-        # clock.tick(60)
+        if len(BoidEcosystem.boids) < 2:
+            exitStatus = 'extinct'
+            print('[EXTINCTION] Fewer than two boids remain; breeding cannot continue.')
+            break
 
-# Exit pygame
-pygame.quit()
+        if args.max_steps is not None and steps >= args.max_steps:
+            exitStatus = (
+                'complete' if BoidEcosystem.totalNbrOfKills >=
+                BoidEcosystem.nbrOfKillsBeforeReset else 'stopped'
+            )
+            runSimulation = False
+
+        if BoidSettings.headless is False:
+            pygame.display.update()
+except KeyboardInterrupt:
+    print('[EXIT] Interrupted.')
+finally:
+    try:
+        BoidEcosystem.finishGeneration(exitStatus)
+    finally:
+        BoidMetrics.close()
+        pygame.quit()
 
 # Exit the program
 print('[EXIT] Bye.')

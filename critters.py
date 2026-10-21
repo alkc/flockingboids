@@ -9,6 +9,8 @@ class Boid:
     def __init__(self, pos, chr_1, chr_2):
 
         self.ID = None
+        self.parent1ID = None
+        self.parent2ID = None
 
         # Spatial vars
         # Position defines the Boid's position in the habitat
