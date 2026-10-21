@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import csv
+from datetime import datetime, timezone
 from time import strftime
 from vector import Vector2D as Vec
 
@@ -63,9 +65,17 @@ class BoidGazer:
 class BoidMetrics:
 
     phenotypeOutput = None
+    genotypeOutput = None
+    orderOutput = None
+    settingsOutput = None
+    fateOutput = None
+    generationOutput = None
     generation = 0
     ticker = -1
     printPerNthGen = None
+    startedAtUTC = None
+    _cohort = None
+    _deaths = {}
 
     genePrintOrder = [
         'cohW',      # Cohesion gene
@@ -92,17 +102,28 @@ class BoidMetrics:
     @staticmethod
     def init(simID):
 
+        BoidMetrics.close()
+        BoidMetrics.generation = 0
+        BoidMetrics.ticker = -1
+        BoidMetrics.startedAtUTC = datetime.now(timezone.utc).isoformat(timespec='seconds')
+        BoidMetrics._cohort = None
+        BoidMetrics._deaths = {}
+
         timePrefix = strftime("%Y-%m-%d_%H.%M.%S_")
 
-        phenotypeOutput = timePrefix + simID + "_phenotypes.txt"
-        genotypeOutput = timePrefix + simID + "_genotypes.txt"
-        orderOutput = timePrefix + simID + "_order.txt"
-        settingsOutput = timePrefix + simID + "_metadata.txt"
+        phenotypeOutput = timePrefix + simID + "_phenotypes.tsv"
+        genotypeOutput = timePrefix + simID + "_genotypes.tsv"
+        orderOutput = timePrefix + simID + "_order.tsv"
+        settingsOutput = timePrefix + simID + "_metadata.tsv"
+        fateOutput = timePrefix + simID + "_fates.tsv"
+        generationOutput = timePrefix + simID + "_generations.tsv"
 
-        BoidMetrics.phenotypeOutput = open(phenotypeOutput, "w")
-        BoidMetrics.genotypeOutput = open(genotypeOutput, "w")
-        BoidMetrics.orderOutput = open(orderOutput, "w")
-        BoidMetrics.settingsOutput = open(settingsOutput, "w")
+        BoidMetrics.phenotypeOutput = open(phenotypeOutput, "w", newline="")
+        BoidMetrics.genotypeOutput = open(genotypeOutput, "w", newline="")
+        BoidMetrics.orderOutput = open(orderOutput, "w", newline="")
+        BoidMetrics.settingsOutput = open(settingsOutput, "w", newline="")
+        BoidMetrics.fateOutput = open(fateOutput, "w", newline="")
+        BoidMetrics.generationOutput = open(generationOutput, "w", newline="")
 
         phenoHeader = "generation\t" + "\t".join(
             BoidMetrics.genePrintOrder) + "\n"
@@ -115,15 +136,104 @@ class BoidMetrics:
         orderHeader = "generation\ttick\torder\n"
         BoidMetrics.orderOutput.write(orderHeader)
 
+        csv.writer(BoidMetrics.fateOutput, delimiter="\t", lineterminator="\n").writerow(
+            ["generation", "boid_id", "parent1_id", "parent2_id",
+             "outcome", "death_tick", *BoidMetrics.genePrintOrder]
+        )
+        csv.writer(BoidMetrics.generationOutput, delimiter="\t", lineterminator="\n").writerow(
+            ["generation", "status", "ticks", "births", "predation_deaths",
+             "collision_deaths", "alive_at_end"]
+        )
+
     @staticmethod
     def printSettings(settings):
 
+        writer = csv.writer(
+            BoidMetrics.settingsOutput, delimiter="\t", lineterminator="\n")
+        writer.writerow(["key", "value"])
+        writer.writerow(["schema_version", "2"])
+        writer.writerow(["started_at_utc", BoidMetrics.startedAtUTC])
         for key, val in settings.items():
-            BoidMetrics.settingsOutput.write(
-                "{}\t{}\n".format(key, val)
-            )
+            if key not in ("description", "display"):
+                writer.writerow([key, val])
 
         BoidMetrics.settingsOutput.close()
+        BoidMetrics.settingsOutput = None
+
+    @staticmethod
+    def startGeneration(boids):
+        if BoidMetrics._cohort is not None:
+            raise RuntimeError("Previous generation has not been recorded")
+        BoidMetrics._cohort = tuple(boids)
+        BoidMetrics._deaths = {}
+
+    @staticmethod
+    def recordDeath(boid, cause, tick):
+        # Standalone collision tests do not initialize the metrics writer.
+        if BoidMetrics._cohort is None:
+            return
+        if boid not in BoidMetrics._cohort or boid in BoidMetrics._deaths:
+            raise RuntimeError("Death does not belong to the active generation")
+        if cause not in ("predation", "collision"):
+            raise ValueError("Unknown death cause: {}".format(cause))
+        BoidMetrics._deaths[boid] = (cause, tick)
+
+    @staticmethod
+    def finishGeneration(status, ticks, aliveBoids):
+        if BoidMetrics._cohort is None:
+            return
+        if status not in ("complete", "stopped", "extinct"):
+            raise ValueError("Unknown generation status: {}".format(status))
+
+        cohort = BoidMetrics._cohort
+        alive = set(aliveBoids)
+        deaths = BoidMetrics._deaths
+        if (not alive.issubset(cohort) or
+                alive.intersection(deaths) or
+                len(alive) + len(deaths) != len(cohort)):
+            raise RuntimeError("Generation outcomes do not match its births")
+
+        fateWriter = csv.writer(
+            BoidMetrics.fateOutput, delimiter="\t", lineterminator="\n")
+        for boid in cohort:
+            outcome, deathTick = deaths.get(
+                boid, ("survived" if status == "complete" else "censored", "")
+            )
+            fateWriter.writerow([
+                BoidMetrics.generation,
+                "{}:{}".format(BoidMetrics.generation, boid.ID),
+                boid.parent1ID or "",
+                boid.parent2ID or "",
+                outcome,
+                deathTick,
+                *("{:.3f}".format(boid.getPhenotype(gene))
+                  for gene in BoidMetrics.genePrintOrder),
+            ])
+        BoidMetrics.fateOutput.flush()
+
+        csv.writer(
+            BoidMetrics.generationOutput, delimiter="\t", lineterminator="\n"
+        ).writerow([
+            BoidMetrics.generation,
+            status,
+            ticks,
+            len(cohort),
+            sum(cause == "predation" for cause, _ in deaths.values()),
+            sum(cause == "collision" for cause, _ in deaths.values()),
+            len(alive),
+        ])
+        BoidMetrics.generationOutput.flush()
+        BoidMetrics._cohort = None
+        BoidMetrics._deaths = {}
+
+    @staticmethod
+    def close():
+        for name in ("phenotypeOutput", "genotypeOutput", "orderOutput",
+                     "settingsOutput", "fateOutput", "generationOutput"):
+            output = getattr(BoidMetrics, name)
+            if output is not None:
+                output.close()
+                setattr(BoidMetrics, name, None)
 
     @staticmethod
     def logPhenotype(phenotypes):
@@ -181,10 +291,3 @@ class BoidMetrics:
     def printThisGen():
 
         return BoidMetrics.generation % BoidMetrics.printPerNthGen == 0
-
-    '''
-    @staticmethod
-    def closeOutput():
-        close(BoidMetrics.phenotypeOutput)
-        close(BoidMetrics.genotypeOutput)
-    '''
