@@ -52,11 +52,15 @@ class BoidSettings:
         BoidGraphics.drawBoidMinDistance = BoidSettings.settings['drawBoidMinimumDistance']
         BoidGraphics.drawBoidPerceptionRadius = BoidSettings.settings['drawBoidPerceptionRadius']
         BoidGraphics.drawPredatorMinDistance = BoidSettings.settings['drawPredatorMinimumDistance']
+        BoidGraphics.drawPredatorPerceptionRadius = BoidSettings.settings['drawPredatorPerceptionRadius']
         BoidGraphics.drawVelocityVector = BoidSettings.settings['drawVelocityVector']
 
         BoidGraphics.boidMinDistance =  int(BoidSettings.settings['minNeighborDist'])
         BoidGraphics.boidPerceptionRadius =  int(BoidSettings.settings['perceptionRadius'])
+        BoidGraphics.boidFov = BoidSettings.settings['fov']
         BoidGraphics.predatorMinDistance =  int(BoidSettings.settings['minPredatorNeighborDistance'])
+        BoidGraphics.predatorPerceptionRadius = int(BoidSettings.settings['predatorPerceptionRadius'])
+        BoidGraphics.predatorFov = BoidSettings.settings['predatorFov']
         
 
     @staticmethod
@@ -85,6 +89,8 @@ class BoidSettings:
         PredatorBehavior.minVelocity = BoidSettings.settings['minPredatorVelocity']
         PredatorBehavior.minDistance = BoidSettings.settings['minPredatorNeighborDistance']
         PredatorBehavior.maxForce = BoidSettings.settings['maxPredatorForce']
+        PredatorBehavior.perceptionRadius = BoidSettings.settings['predatorPerceptionRadius']
+        PredatorBehavior.fov = BoidSettings.settings['predatorFov']
         PredatorBehavior.restAfterKill = BoidSettings.settings['restAfterKill']
         PredatorBehavior.maxKillTimeout = BoidSettings.settings['huntingInterval']
 
@@ -134,6 +140,7 @@ class BoidSettings:
         BoidGraphics.drawBoidMinDistance = toggle
         BoidGraphics.drawBoidPerceptionRadius = toggle
         BoidGraphics.drawPredatorMinDistance = toggle
+        BoidGraphics.drawPredatorPerceptionRadius = toggle
 
     @staticmethod
     def toggleVelocityVector():

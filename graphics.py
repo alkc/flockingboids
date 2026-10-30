@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from math import hypot
+from math import atan2, cos, hypot, radians, sin
 
 import pygame
 from critters import Boid, PredatorBoid
@@ -8,26 +8,51 @@ from critters import Boid, PredatorBoid
 
 class BoidGraphics:
 
-    # Switches for the circles around boids
+    # Switches for the range and vision outlines around boids
     drawBoidMinDistance = None
     drawBoidPerceptionRadius = None
     drawPredatorMinDistance = None
+    drawPredatorPerceptionRadius = None
     drawVelocityVector = None
 
     predatorMinDistance = None
     boidMinDistance = None
     boidPerceptionRadius = None
+    boidFov = None
+    predatorPerceptionRadius = None
+    predatorFov = None
 
     # Colors:
     boidMinDistanceColor = (255, 255, 0)         # White
     boidPerceptionRadiusColor = (255, 255, 255)  # Yellow
     predatorMinDistanceColor = (255, 0, 0)       # Blood red
+    predatorPerceptionColor = (255, 140, 70)
 
     # Headless
     headlessMode = None
 
     # pygame display
     display = None
+
+    @staticmethod
+    def _drawVisionCone(boid, radius, fov, color):
+        center = (round(boid.position.x), round(boid.position.y))
+        speed = hypot(boid.velocity.x, boid.velocity.y)
+        if fov >= 360 or speed == 0:
+            pygame.draw.circle(BoidGraphics.display, color, center, radius, 1)
+            return
+
+        heading = atan2(boid.velocity.y, boid.velocity.x)
+        span = radians(fov)
+        start = heading - span / 2
+        segments = max(8, round(fov / 10))
+        points = [center]
+        for step in range(segments + 1):
+            angle = start + span * step / segments
+            points.append((round(center[0] + radius * cos(angle)),
+                           round(center[1] + radius * sin(angle))))
+        points.append(center)
+        pygame.draw.lines(BoidGraphics.display, color, False, points, 1)
 
     @staticmethod
     def _trianglePoints(boid, front, back, halfWidth):
@@ -61,11 +86,10 @@ class BoidGraphics:
             if BoidGraphics.drawBoidPerceptionRadius:
 
                 try:
-                    pygame.draw.circle(
-                        BoidGraphics.display,
-                        BoidGraphics.boidPerceptionRadiusColor,
-                        renderPos, BoidGraphics.boidPerceptionRadius,
-                        1)
+                    BoidGraphics._drawVisionCone(
+                        boid, BoidGraphics.boidPerceptionRadius,
+                        BoidGraphics.boidFov,
+                        BoidGraphics.boidPerceptionRadiusColor)
                 except Exception as e:
                     print("[ERROR] Could not draw perception radius at pos {}:".format(renderPos), e)
             if BoidGraphics.drawBoidMinDistance:
@@ -79,6 +103,15 @@ class BoidGraphics:
 
         if isinstance(boid, PredatorBoid):
 
+            if BoidGraphics.drawPredatorPerceptionRadius:
+                try:
+                    BoidGraphics._drawVisionCone(
+                        boid, BoidGraphics.predatorPerceptionRadius,
+                        BoidGraphics.predatorFov,
+                        BoidGraphics.predatorPerceptionColor)
+                except Exception as e:
+                    print("[ERROR] Could not draw predator vision at pos {}:".format(renderPos), e)
+
             if BoidGraphics.drawPredatorMinDistance:
 
                 try:
@@ -89,7 +122,7 @@ class BoidGraphics:
                 except Exception as e:
                     print("[ERROR] Could not draw predator minimum distance at position {}:".format(renderPos), e)
         try:
-            size = (11, 7, 6) if isinstance(boid, PredatorBoid) else (8, 5, 4)
+            size = (9, 6, 5) if isinstance(boid, PredatorBoid) else (7, 4, 3)
             pygame.draw.polygon(
                 BoidGraphics.display,
                 boid.color,
