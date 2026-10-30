@@ -75,6 +75,7 @@ settings = {
     'mutationSize': 0.75,
     'crossoverRate': 0.0147,  # Currently not implemented
     'maxInitialGeneValues': 0.0,  # Set to 0.0 for no initial flocking behavior
+    'maxInitialColorGeneValues': 5.1,  # Color values from 0 to 5.1 map to RGB 0 to 255
     'independentSegregation': True,  # Broken as of v0.5
 
     # Graphics settings

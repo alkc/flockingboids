@@ -41,7 +41,7 @@ class Boid:
 
         for col in ['red', 'green', 'blue']:
 
-            colval = int(self.phenotypes[col]) * 50
+            colval = int(self.phenotypes[col] * 50)
 
             # A color value outside 0-255 would break the program:
             if colval > 255:

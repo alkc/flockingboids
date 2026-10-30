@@ -27,6 +27,7 @@ class BoidEcosystem:
     # Boid genetic properties
     nbrOfLoci = 7
     maxInitialGeneVal = None
+    maxInitialColorGeneVal = None
 
     # Flocks
     boids = []
@@ -383,8 +384,13 @@ class BoidEcosystem:
         geneSet = {}
 
         for gene in BoidGenetics.geneList:
+            maxInitialValue = (
+                BoidEcosystem.maxInitialColorGeneVal
+                if gene in ('red', 'green', 'blue')
+                else BoidEcosystem.maxInitialGeneVal
+            )
             allele = BoidGenetics.getRandAllele(
-                BoidEcosystem.maxInitialGeneVal
+                maxInitialValue
             )
             geneSet[gene] = allele
 

@@ -99,6 +99,7 @@ class BoidSettings:
     def _setupBoidGenomes():
         # BoidEcosystem.nbrOfLoci = BoidSettings.settings['nbrOfLoci']
         BoidEcosystem.maxInitialGeneVal = BoidSettings.settings['maxInitialGeneValues']
+        BoidEcosystem.maxInitialColorGeneVal = BoidSettings.settings['maxInitialColorGeneValues']
 
     @staticmethod
     def _setupGeneticAlgorithm():
