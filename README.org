@@ -31,7 +31,7 @@ Run the simulation from this directory:
 micromamba run -n flockingboids python run.py
 #+end_src
 
-Press =H= to toggle headless mode, =R= to show detection radii, or =V= to show velocity vectors. Close the window to stop. The simulation writes metrics files to the current directory.
+Press =H= to toggle headless mode, =R= to show detection radii, or =V= to show velocity vectors. Close the window to stop. The simulation writes TSV data files to the current directory.
 
 Boids sense flockmates and predators only within their forward vision cone. Predators likewise pursue prey only within their own vision cone. Adjust =fov= and =perceptionRadius= for boids, or =predatorFov= and =predatorPerceptionRadius= for predators, in =run.py=. Set a field of view to 360 degrees for all-around vision. Press =R= to show the cone outlines along with the minimum-distance circles.
 
@@ -45,9 +45,21 @@ micromamba run -n flockingboids python run.py --headless --max-generations 2
 
 Starting colors are randomized per boid and inherited by later generations. The =maxInitialColorGeneValues= setting in =run.py= controls their starting range independently of =maxInitialGeneValues=, which remains at zero for flocking behavior. The phenotype metrics record red, green, and blue gene values; the displayed RGB channels are those values multiplied by 50 and limited to 255.
 
+* Data files
+
+Each run writes six tab-separated files with the same timestamp and simulation ID prefix:
+
+- =*_phenotypes.tsv= and =*_genotypes.tsv= record newborn genes in generation 0 and every =printPerNthGen= generations thereafter. Genotypes have two rows per boid, one for each chromosome.
+- =*_order.tsv= records flock alignment every =printOrderPerNthTick= ticks in those sampled generations.
+- =*_metadata.tsv= records a format version, UTC start time, and the simulation settings used for the run.
+- =*_fates.tsv= has one row per boid in every generation. =boid_id= and parent IDs use =generation:local_id=. The =outcome= is =survived=, =predation=, =collision=, or =censored=; =death_tick= is the one-based step number for deaths. =Censored= means the run ended before that boid's generation completed.
+- =*_generations.tsv= records the exact number of ticks, births, deaths by cause, and boids alive at the end of each generation. =status= is =complete= when the kill threshold was reached, =stopped= for a clean early stop, or =extinct= when fewer than two boids remain.
+
+The fate file includes phenotype values for both survivors and casualties, so their genes can be compared within a generation. Old =.txt= runs keep their original format; their missing death and parent information cannot be reconstructed.
+
 * Tests
 
-Run the survival tests with:
+Run the test suite with:
 
 #+begin_src sh
 micromamba run -n flockingboids python -m unittest discover -s tests -v

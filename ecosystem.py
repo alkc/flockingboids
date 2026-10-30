@@ -48,6 +48,7 @@ class BoidEcosystem:
 
     currentGeneration = 0
     printPerNthGen = None
+    stepsThisGeneration = 0
 
     # The most important stuff:
     # Initialize the BoidEcosystem class.
@@ -62,6 +63,8 @@ class BoidEcosystem:
     # Advance the simulation one step
     @staticmethod
     def step():
+
+        BoidEcosystem.stepsThisGeneration += 1
 
         # Move all boids!
         BoidBehavior.moveBoids(BoidEcosystem.boids, BoidEcosystem.predators)
@@ -87,8 +90,11 @@ class BoidEcosystem:
         if len(BoidEcosystem.boids) < 2:
             return False
 
+        BoidEcosystem.finishGeneration("complete")
+
         # Advance generation counter
         BoidEcosystem.currentGeneration += 1
+        BoidEcosystem.stepsThisGeneration = 0
 
         # This function is here to print info about how the
         # simulation is progressing to the terminal. The function
@@ -117,12 +123,20 @@ class BoidEcosystem:
 
         return True
 
+    @staticmethod
+    def finishGeneration(status):
+        bStats.finishGeneration(
+            status, BoidEcosystem.stepsThisGeneration, BoidEcosystem.boids)
+
     # Create and populate ecosystem with fresh boids and predators
     @staticmethod
     def createEcosystem():
 
+        BoidEcosystem.stepsThisGeneration = 0
+
         # Spawn boids
         BoidEcosystem._spawnbrOfBoids()
+        bStats.startGeneration(BoidEcosystem.boids)
 
         # Spawn predators
         BoidEcosystem._spawnbrOfPredators()
@@ -205,6 +219,8 @@ class BoidEcosystem:
 
             if closestBoid is not None:
                 localBoids.remove(closestBoid)
+                bStats.recordDeath(
+                    closestBoid, "predation", BoidEcosystem.stepsThisGeneration)
                 BoidEcosystem.totalNbrOfKills += 1
                 predator.currHunger = 0
 
@@ -243,6 +259,8 @@ class BoidEcosystem:
 
         for boid in deadBoids:
             localBoids.remove(boid)
+            bStats.recordDeath(
+                boid, "collision", BoidEcosystem.stepsThisGeneration)
 
         BoidEcosystem.totalNbrOfKills += len(deadBoids)
 
@@ -290,6 +308,10 @@ class BoidEcosystem:
                 male, female, randomPositions[n])
 
             offspring.ID = n
+            offspring.parent1ID = "{}:{}".format(
+                BoidEcosystem.currentGeneration - 1, male.ID)
+            offspring.parent2ID = "{}:{}".format(
+                BoidEcosystem.currentGeneration - 1, female.ID)
             offspring.velocity = Vec.getRandVec(BoidBehavior.maxVelocity)
 
             youngBoids.append(offspring)
@@ -303,6 +325,7 @@ class BoidEcosystem:
         logbook.logMeans(youngBoids, 1)
         # List of new boids replaces the old boids
         BoidEcosystem.boids = youngBoids
+        bStats.startGeneration(youngBoids)
         # for boid in BoidEcosystem.boids:
         #    logbook.log("[NEXTGEN] {}".format(boid.getStats()))
 
