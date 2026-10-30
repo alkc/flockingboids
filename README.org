@@ -40,3 +40,11 @@ micromamba run -n flockingboids python run.py --headless --max-generations 2
 #+end_src
 
 =--max-steps N= stops after N simulation steps, which is useful for quick checks.
+
+* Tests
+
+Run the survival tests with:
+
+#+begin_src sh
+micromamba run -n flockingboids python -m unittest discover -s tests -v
+#+end_src

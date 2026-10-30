@@ -83,6 +83,9 @@ class BoidEcosystem:
     # and spawn new predators
     @staticmethod
     def advanceGeneration():
+        if len(BoidEcosystem.boids) < 2:
+            return False
+
         # Advance generation counter
         BoidEcosystem.currentGeneration += 1
 
@@ -110,6 +113,8 @@ class BoidEcosystem:
 
         # Spawn fresh predators
         BoidEcosystem._spawnbrOfPredators()
+
+        return True
 
     # Create and populate ecosystem with fresh boids and predators
     @staticmethod
@@ -184,35 +189,23 @@ class BoidEcosystem:
 
     @staticmethod
     def _checkForKills(localBoids, predators):
-
-        # logbook.log("[HUNT] Start predation check")
-
         for predator in predators:
-
-            # if predator isn't hungry, advance to the next predator
             if predator.currHunger <= PredatorBehavior.maxKillTimeout:
                 continue
 
-            # Brainwave: make the predator store the closest boid in a
-            # self.target variable that can be called by this function.
-            # This could remove the need to iterate over all boids below:
+            closestBoid = None
+            closestDistance = PredatorBehavior.killRadius
+
             for boid in localBoids:
                 distance = predator.position.distanceTo(boid.position)
-                # if distance to boid within killRadius:
-                if distance < PredatorBehavior.killRadius:
-                    # Try to remove the boid from the list
-                    try:
-                        localBoids.remove(boid)
-                        BoidEcosystem.totalNbrOfKills += 1
-                        predator.currHunger = 0
-                    except ValueError as e:
-                        # If it fails, print an error message and continue
-                        # the simulation
-                        logbook.log('[SIM][ERROR] Could not remove hunted boid from boids: {}'.format(e))
-                    # Continue exits the boid in boids loop
-                    continue
+                if distance < closestDistance:
+                    closestBoid = boid
+                    closestDistance = distance
 
-        # logbook.log("[HUNT] End predation check")
+            if closestBoid is not None:
+                localBoids.remove(closestBoid)
+                BoidEcosystem.totalNbrOfKills += 1
+                predator.currHunger = 0
 
     # Check for collissions between boids. Boids can collide an N amount of
     # times before they are removed from the simulation. The idea being that
@@ -222,63 +215,35 @@ class BoidEcosystem:
     # of time, both of which can be edited from the settings in run.py
     @staticmethod
     def _checkForCollissions(localBoids):
+        # Decide eligibility before applying new daze timers. Each pair
+        # contributes one hit to both boids, even in a crowded group.
+        eligibleBoids = [boid for boid in localBoids if boid.dazedTimer <= 0]
+        hits = [0] * len(eligibleBoids)
 
-        for boid in localBoids:
+        for index, boid in enumerate(eligibleBoids):
+            for otherIndex in range(index + 1, len(eligibleBoids)):
+                otherBoid = eligibleBoids[otherIndex]
+                distance = boid.position.distanceTo(otherBoid.position)
+                if distance < BoidEcosystem.collisionRadius:
+                    hits[index] += 1
+                    hits[otherIndex] += 1
 
-            # If boid is already dazed from a previous collission skip it.
-            # This is to give it time to fly away. If boids in a simulation
-            # appear to stop in the habitat and not really move on, then
-            # this is likely the culprit.
-            if boid.dazedTimer > 0:
+        deadBoids = []
+        for boid, hitCount in zip(eligibleBoids, hits):
+            if hitCount == 0:
                 continue
 
-            for otherBoid in localBoids:
+            boid.collisions += hitCount
+            boid.dazedTimer = BoidBehavior.maxSlowdownTime
 
-                # if boid and otherBoid are the same boid, well, advance the
-                # iteration
-                if boid is otherBoid:
-                    continue
+            if (BoidEcosystem.deadlyCollisions and
+                    boid.collisions > BoidEcosystem.maxNbrOfCollisions):
+                deadBoids.append(boid)
 
-                distance = boid.position.subVec(otherBoid.position).getMag()
+        for boid in deadBoids:
+            localBoids.remove(boid)
 
-                if distance < BoidEcosystem.collisionRadius:
-
-                    # Uncomment to get annoying collision info in real time:
-                    # logbook.log("[COLLISSION] {} and {}".format(boid.getStats(), otherBoid.getStats()))
-
-                    # Start the confusion timer.
-                    boid.dazedTimer = BoidBehavior.maxSlowdownTime
-
-                    # Likewise for the other boid involved in the colission
-                    if otherBoid.dazedTimer > 0:
-                        otherBoid.dazedTimer = BoidBehavior.maxSlowdownTime
-                        otherBoid.collisions += 1
-
-                    # Increase both boids collission counts and...
-                    boid.collisions += 1
-
-                    # ... and if they exceed the max allowed collissions:
-                    # remove one or both boids from the simulation:
-                    if BoidEcosystem.deadlyCollisions is True:
-                        if boid.collisions > BoidEcosystem.maxNbrOfCollisions:
-                            
-                            try:
-                                # logbook.log(
-                                BoidEcosystem.boids.remove(boid)
-                                BoidEcosystem.totalNbrOfKills += 1
-                            except ValueError as e:
-                                logbook.log("[ERROR] Could not remove boid from boids: {}".format(e))
-
-                        if otherBoid.collisions > BoidEcosystem.maxNbrOfCollisions:
-                            try:
-                                BoidEcosystem.boids.remove(otherBoid)
-                                BoidEcosystem.totalNbrOfKills += 1
-                            except ValueError as e:
-                                logbook.log(
-                                    "[ERROR] Could not remove other boid from boids: {}".format(e)
-                                )
-
-        # logbook.log("[COLISSION] End collission check")
+        BoidEcosystem.totalNbrOfKills += len(deadBoids)
 
     # B O I D   R E P R O D U C T I O N
 
