@@ -10,6 +10,7 @@
 
 ** Changed
 
+- Draw prey and predators as triangles pointing in their direction of travel.
 - Ported the simulation and field-of-view demo to Python 3
 - Converted the changelog, README, and TODO list to Org format and moved the original README.txt to docs/.
 - Documented micromamba setup and how to run the simulation.

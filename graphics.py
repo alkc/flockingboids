@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+from math import hypot
+
 import pygame
 from critters import Boid, PredatorBoid
 
@@ -26,6 +28,25 @@ class BoidGraphics:
 
     # pygame display
     display = None
+
+    @staticmethod
+    def _trianglePoints(boid, front, back, halfWidth):
+        speed = hypot(boid.velocity.x, boid.velocity.y)
+        if speed:
+            forwardX = boid.velocity.x / speed
+            forwardY = boid.velocity.y / speed
+        else:
+            forwardX, forwardY = 0.0, -1.0
+
+        sideX, sideY = -forwardY, forwardX
+        x, y = boid.position.x, boid.position.y
+        return [
+            (round(x + forwardX * front), round(y + forwardY * front)),
+            (round(x - forwardX * back + sideX * halfWidth),
+             round(y - forwardY * back + sideY * halfWidth)),
+            (round(x - forwardX * back - sideX * halfWidth),
+             round(y - forwardY * back - sideY * halfWidth)),
+        ]
 
     @staticmethod
     def drawBoid(boid):
@@ -68,9 +89,11 @@ class BoidGraphics:
                 except Exception as e:
                     print("[ERROR] Could not draw predator minimum distance at position {}:".format(renderPos), e)
         try:
-            pygame.draw.circle(
+            size = (11, 7, 6) if isinstance(boid, PredatorBoid) else (8, 5, 4)
+            pygame.draw.polygon(
                 BoidGraphics.display,
-                boid.color, renderPos, 2, 0)
+                boid.color,
+                BoidGraphics._trianglePoints(boid, *size))
         except Exception as e:
             print("[ERROR] Could not draw boid at pos {}:".format(renderPos), e)
 
